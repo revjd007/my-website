@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SteamML - Manifest & Lua Generator</title>
+  <meta name="description" content="Free, open-source Steam manifest & Lua generator. Ad-free, developer-first." />
+  <meta name="keywords" content="steam manifest, lua generator, steamcmd, workshop, vdf, depot, mod tools" />
+  <meta name="robots" content="index, follow"/>
+  <meta property="og:title" content="SteamML - Free Steam Manifest & Lua Generator"/>
+  <meta property="og:description" content="Generate manifest and Lua files instantly. No ads. Open source."/>
+  <meta property="og:image" content="logo.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <link rel="icon" href="logo.png"/>
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #14141f;
+      --accent: #00ff88;
+      --accent-glow: #00ff8833;
+      --text: #e0e0ff;
+      --text-muted: #8888aa;
+      --border: #33334d;
+      --radius: 16px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #00d4ff, #00ff88);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent-glow);
+      color: var(--accent);
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 0.75rem;
+      border: 1px solid var(--accent);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.95rem;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .nav-btn.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: var(--transition);
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 260px;
+      background: #1a1a2e;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 1rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--accent-glow);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .btn.secondary:hover {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 1rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .description {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .link-card {
+      background: #1a1a2e;
+      border: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      text-align: center;
+      min-width: 180px;
+      transition: var(--transition);
+    }
+
+    .link-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 255, 136, 0.15);
+    }
+
+    .link-card h3 {
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .link-card p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer {
+      margin-top: 4rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 2.5rem; }
+      .input-group { flex-direction: column; }
+      .nav { justify-content: flex-start; overflow-x: auto; padding-bottom: 1rem; }
+      .nav-btn { white-space: nowrap; }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>SteamML</h1>
+      <p class="subtitle">Free • Open Source • Ad-Free Manifest & Lua Generator</p>
+      <div class="badge">v2.0 — Made by OPV</div>
+    </header>
+
+    <nav class="nav" role="tablist">
+      <button class="nav-btn active" data-tab="home">Home</button>
+      <button class="nav-btn" data-tab="loader">SteamML Loader</button>
+      <button class="nav-btn" data-tab="updater">Game Updater</button>
+      <button class="nav-btn" data-tab="dlc">DLC Unlocker</button>
+      <button class="nav-btn" data-tab="online">Online Patcher</button>
+    </nav>
+
+    <!-- Home Panel -->
+    <section id="home" class="panel active">
+      <h2 class="section-title">Generate Manifest & Lua</h2>
+      <p class="description">Enter any Steam AppID to download pre-built manifest + Lua files. Works with SteamCMD, workshops, and depots.</p>
+      
+      <div class="input-group">
+        <input type="text" id="gameId" placeholder="e.g. 730 (CS2), 440 (TF2)" aria-label="Steam AppID">
+        <button class="btn" onclick="downloadZip()">
+          Download ZIP
+        </button>
+      </div>
+
+      <div id="message"></div>
+
+      <div class="links">
+        <div class="link-card">
+          <h3>Ko-fi</h3>
+          <p>Support the project</p>
+          <button class="btn secondary" onclick="openExternal('https://ko-fi.com/opvthedev')">Donate ☕</button>
+        </div>
+        <div class="link-card">
+          <h3>Discord</h3>
+          <p>Join community</p>
+          <button class="btn secondary" onclick="openExternal('https://discord.gg/VXHUfGS9qB')">Join Server</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SteamML Loader -->
+    <section id="loader" class="panel">
+      <h2 class="section-title">SteamML Loader</h2>
+      <p class="description">Safer, open-source alternative to Steamtool. Lightweight, easy to use.</p>
+      <div class="btn-group">
+        <button class="btn" onclick="openExternal('https://pub-5b6d3b7c03fd4ac1afb5bd3017850e20.r2.dev/SteamML%20Loader.zip')">Download Loader</button>
+        <button class="btn secondary" onclick="openExternal('https://www.virustotal.com/gui/file/eaf158806cbfdd1ff6c12970277b78ba1386eb3d01bfce24c0ed2f56e194a2fc/detection')">VirusTotal</button>
+        <button class="btn secondary" onclick="openExternal('https://Lfk3q6Y2V27G.app/stmlsc.txt')">Source Code</button>
+      </div>
+    </section>
+
+    <!-- Game Updater -->
+    <section id="updater" class="panel">
+      <h2 class="section-title">Game Updater (3rd Party）</h2>
+      <p class="description">Update cracked games easily. <strong>Not made by SteamML.</strong> Disable AV before use.</p>
+      <div class="btn-group">
+        <button class="btn" onclick="openExternal('https://github.com/Ahmeds-tool/Manifest-Updater/releases/download/V2.3/LuaMani.Updater.V2.3.exe')">Download Updater</button>
+      </div>
+    </section>
+
+    <!-- DLC Unlocker -->
+    <section id="dlc" class="panel">
+      <h2 class="section-title">DLC Unlocker</h2>
+      <p class="description">Unlock DLCs using SmokeAPI. <em>Not affiliated with SteamML.</em></p>
+      <div class="btn-group">
+        <button class="btn" onclick="openExternal('https://github.com/acidicoala/SmokeAPI/releases/tag/v4.0.0')">Download SmokeAPI</button>
+      </div>
+    </section>
+
+    <!-- Online Patcher -->
+    <section id="online" class="panel">
+      <h2 class="section-title">SteamML Online Patcher</h2>
+      <p class="description">Enable online features in offline Steam tools. Use with caution.</p>
+      <div class="btn-group">
+        <button class="btn" onclick="openExternal('https://pub-5b6d3b7c03fd4ac1afb5bd3017850e20.r2.dev/SteamMLOnlinePatcher.zip')">Download Patcher</button>
+      </div>
+    </section>
+
+    <footer>
+      <p>SteamML is not affiliated with Valve Corporation or Steam. Use at your own risk.</p>
+      <p>Built with 💚 by <strong>OPV</strong> • Open Source • No Trackers</p>
+    </footer>
+  </div>
+
+  <script>
+    // Tab Switching
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        
+        btn.classList.add('active');
+        const tab = btn.getAttribute('data-tab');
+        document.getElementById(tab).classList.add('active');
+      });
+    });
+
+    // Download Manifest ZIP
+    function downloadZip() {
+      const appId = document.getElementById('gameId').value.trim();
+      const msg = document.getElementById('message');
+      
+      if (!appId || !/^\d+$/.test(appId)) {
+        msg.innerHTML = '<p style="color:#ff6b6b;">⚠️ Please enter a valid numeric AppID.</p>';
+        return;
+      }
+
+      const url = `https://pub-5b6d3b7c03fd4ac1afb5bd3017850e20.r2.dev/${appId}.zip`;
+      msg.innerHTML = `<p style="color:var(--accent);">⬇️ Downloading ${appId}.zip...</p>`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setTimeout(() => msg.innerHTML = '', 3000);
+    }
+
+    // Open external links safely
+    function openExternal(url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    // Block dev tools & right-click (optional, can be removed)
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.onkeydown = e => {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'ICJ'.includes(e.key)) || (e.ctrlKey && e.key === 'u')) {
+        e.preventDefault();
+        return false;
+      }
+    };
+  </script>
+</body>
+</html>
